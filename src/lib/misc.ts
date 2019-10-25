@@ -185,10 +185,11 @@ export function startEndpoint({
 
 export async function launchSourceAndBrokerServer(
   root: string,
+  expose: boolean = false,
 ): Promise<[SourceServer, BrokerServer]> {
   try {
     const source = await launchSourceServer(root);
-    const broker = await launchBrokerServer().catch((e) => {
+    const broker = await launchBrokerServer(expose).catch((e) => {
       source.server.close();
       throw e;
     });
@@ -198,7 +199,9 @@ export async function launchSourceAndBrokerServer(
   }
 }
 
-export function launchBrokerServer(): Promise<BrokerServer> {
+export function launchBrokerServer(
+  expose: boolean,
+): Promise<BrokerServer> {
   return new Promise(async (resolve) => {
     const port = await findPort();
 
@@ -233,7 +236,7 @@ export function launchBrokerServer(): Promise<BrokerServer> {
       before: [beforeHook],
     });
 
-    server.listen(port, 'localhost', () => {
+    server.listen(port, expose ? '0.0.0.0' : 'localhost', () => {
       (['exit', 'SIGNIT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
         process.on(sig, () => {
           server.close();

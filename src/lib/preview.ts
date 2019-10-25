@@ -14,6 +14,7 @@ export interface PreviewOption {
   rootDir?: string;
   loadMode: LoadMode;
   sandbox: boolean;
+  expose: boolean;
 }
 
 export default async function run({
@@ -21,13 +22,14 @@ export default async function run({
   rootDir,
   loadMode = 'document',
   sandbox = true,
+  expose = false,
 }: PreviewOption) {
   const stat = fs.statSync(input);
   const root = rootDir || (stat.isDirectory() ? input : path.dirname(input));
   const sourceIndex = await findEntryPointFile(input, root);
 
   try {
-    const [source, broker] = await launchSourceAndBrokerServer(root);
+    const [source, broker] = await launchSourceAndBrokerServer(root, expose);
 
     const sourcePort = source.port;
     const brokerPort = broker.port;

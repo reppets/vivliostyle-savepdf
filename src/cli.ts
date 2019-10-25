@@ -53,6 +53,10 @@ program
                              If preview option is set, options below this line will be ignored.`,
   )
   .option(
+    '--preview-expose',
+    `same as --preview option except the preview server listens any hostname and do not launch the browser.`
+  )
+  .option(
     '-o, --output <output_file>',
     `specify output file path (default output.pdf)`,
     'output.pdf',
@@ -75,12 +79,13 @@ if (program.args.length < 1) {
   program.help();
 }
 
-if (program.preview) {
+if (program.preview || program.previewExpose) {
   preview({
     input: path.resolve(process.cwd(), program.args[0]),
     rootDir: program.root && path.resolve(process.cwd(), program.root),
     loadMode: program.book ? 'book' : 'document',
     sandbox: program.sandbox,
+    expose: program.previewExpose,
   });
 } else {
   save({
